@@ -1828,16 +1828,16 @@ const char* get_save_path(char* custom_path_buffer, size_t max_len) {
 // seg000:1D45
 void __pascal far save_game() {
 	word success;
-	int handle;
+	FILE *handle;
 	success = 0;
 	char custom_save_path[POP_MAX_PATH];
 	const char* save_path = get_save_path(custom_save_path, sizeof(custom_save_path));
 	// no O_TRUNC
-	handle = open(save_path, O_WRONLY | O_CREAT | O_BINARY, 0600);
-	if (handle == -1) goto loc_1DB8;
-	if (write(handle, &rem_min, 2) == 2) goto loc_1DC9;
+	handle = fopen(save_path, "wb");
+	if (handle == NULL) goto loc_1DB8;
+	if (fwrite(&rem_min, 1, 2, handle) == 2) goto loc_1DC9;
 	loc_1D9B:
-	close(handle);
+	fclose(handle);
 	if (!success) {
 		unlink(save_path);
 	}
@@ -1846,9 +1846,9 @@ void __pascal far save_game() {
 	display_text_bottom("GAME SAVED");
 	goto loc_1E2E;
 	loc_1DC9:
-	if (write(handle, &rem_tick, 2) != 2) goto loc_1D9B;
-	if (write(handle, &current_level, 2) != 2) goto loc_1D9B;
-	if (write(handle, &hitp_beg_lev, 2) != 2) goto loc_1D9B;
+	if (fwrite(&rem_tick, 1, 2, handle) != 2) goto loc_1D9B;
+	if (fwrite(&current_level, 1, 2, handle) != 2) goto loc_1D9B;
+	if (fwrite(&hitp_beg_lev, 1, 2, handle) != 2) goto loc_1D9B;
 	success = 1;
 	goto loc_1D9B;
 	loc_1E18:
@@ -1860,22 +1860,22 @@ void __pascal far save_game() {
 
 // seg000:1E38
 short __pascal far load_game() {
-	int handle;
+	FILE *handle;
 	word success;
 	success = 0;
 	char custom_save_path[POP_MAX_PATH];
 	const char* save_path = get_save_path(custom_save_path, sizeof(custom_save_path));
-	handle = open(save_path, O_RDONLY | O_BINARY);
-	if (handle == -1) goto loc_1E99;
-	if (read(handle, &rem_min, 2) == 2) goto loc_1E9E;
+	handle = fopen(save_path, "rb");
+	if (handle == NULL) goto loc_1E99;
+	if (fread(&rem_min, 1, 2, handle) == 2) goto loc_1E9E;
 	loc_1E8E:
-	close(handle);
+	fclose(handle);
 	loc_1E99:
 	return success;
 	loc_1E9E:
-	if (read(handle, &rem_tick, 2) != 2) goto loc_1E8E;
-	if (read(handle, &start_level, 2) != 2) goto loc_1E8E;
-	if (read(handle, &hitp_beg_lev, 2) != 2) goto loc_1E8E;
+	if (fread(&rem_tick, 1, 2, handle) != 2) goto loc_1E8E;
+	if (fread(&start_level, 1, 2, handle) != 2) goto loc_1E8E;
+	if (fread(&hitp_beg_lev, 1, 2, handle) != 2) goto loc_1E8E;
 #ifdef USE_COPYPROT
 	if (enable_copyprot && custom->copyprot_level > 0) {
 		custom->copyprot_level = start_level;
