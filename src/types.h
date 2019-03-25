@@ -33,7 +33,8 @@ The authors of this program may be contacted at http://forum.princed.org
 #endif
 
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
-#error This program is not (yet) prepared for big endian CPUs, please contact the author.
+//#error This program is not (yet) prepared for big endian CPUs, please contact the author.
+#warning Support for big endian CPUs is experimental, use at your own risk!
 #endif
 
 // This macro is from SDL_types.h / SDL_stdinc.h .
