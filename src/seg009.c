@@ -643,20 +643,20 @@ void __pascal far decompr_img(byte far *dest,const image_data_type far *source,i
 			decompress_rle_lr(dest, source->data, decomp_size);
 		break;
 		case 2: // RLE up-to-down
-			decompress_rle_ud(dest, source->data, decomp_size, stride, source->height);
+			decompress_rle_ud(dest, source->data, decomp_size, stride, le16toh(source->height));
 		break;
 		case 3: // LZG left-to-right
 			decompress_lzg_lr(dest, source->data, decomp_size);
 		break;
 		case 4: // LZG up-to-down
-			decompress_lzg_ud(dest, source->data, decomp_size, stride, source->height);
+			decompress_lzg_ud(dest, source->data, decomp_size, stride, le16toh(source->height));
 		break;
 	}
 }
 
 int calc_stride(image_data_type* image_data) {
-	int width = image_data->width;
-	int flags = image_data->flags;
+	int width = le16toh(image_data->width);
+	int flags = le16toh(image_data->flags);
 	int depth = ((flags >> 12) & 7) + 1;
 	return (depth * width + 7) / 8;
 }
@@ -684,10 +684,10 @@ byte* conv_to_8bpp(byte* in_data, int width, int height, int stride, int depth) 
 }
 
 image_type* decode_image(image_data_type* image_data, dat_pal_type* palette) {
-	int height = image_data->height;
+	int height = le16toh(image_data->height);
 	if (height == 0) return NULL;
-	int width = image_data->width;
-	int flags = image_data->flags;
+	int width = le16toh(image_data->width);
+	int flags = le16toh(image_data->flags);
 	int depth = ((flags >> 12) & 7) + 1;
 	int cmeth = (flags >> 8) & 0x0F;
 	int stride = calc_stride(image_data);
@@ -1022,7 +1022,7 @@ static void load_font_character_offsets(rawfont_type* data) {
 	for (int index = 0; index < n_chars; ++index) {
 		data->offsets[index] = (word) (pos - (byte*) data);
 		image_data_type* image_data = (image_data_type*) pos;
-		int image_bytes = image_data->height * calc_stride(image_data);
+		int image_bytes = le16toh(image_data->height) * calc_stride(image_data);
 		pos = (byte*) &image_data->data + image_bytes;
 	}
 }
@@ -1031,10 +1031,10 @@ font_type load_font_from_data(/*const*/ rawfont_type* data) {
 	font_type font;
 	font.first_char = data->first_char;
 	font.last_char = data->last_char;
-	font.height_above_baseline = data->height_above_baseline;
-	font.height_below_baseline = data->height_below_baseline;
-	font.space_between_lines = data->space_between_lines;
-	font.space_between_chars = data->space_between_chars;
+	font.height_above_baseline = le16toh(data->height_above_baseline);
+	font.height_below_baseline = le16toh(data->height_below_baseline);
+	font.space_between_lines = le16toh(data->space_between_lines);
+	font.space_between_chars = le16toh(data->space_between_chars);
 	int n_chars = font.last_char - font.first_char + 1;
 	// Allow loading a font even if the offsets for each character image were not supplied in the raw data.
 	if (data->offsets[0] == 0) {
