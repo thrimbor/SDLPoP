@@ -372,6 +372,9 @@ dat_type *__pascal open_dat(const char *filename,int drive) {
 	if (fp != NULL) {
 		if (fread(&dat_header, 6, 1, fp) != 1)
 			goto failed;
+		// ENDIANESS SWAP
+		dat_header.table_offset = le32toh(dat_header.table_offset);
+		dat_header.table_size = le16toh(dat_header.table_size);
 		dat_table = (dat_table_type*) malloc(dat_header.table_size);
 		if (dat_table == NULL ||
 		    fseek(fp, dat_header.table_offset, SEEK_SET) ||
