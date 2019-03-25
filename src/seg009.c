@@ -380,6 +380,8 @@ dat_type *__pascal open_dat(const char *filename,int drive) {
 		    fseek(fp, dat_header.table_offset, SEEK_SET) ||
 		    fread(dat_table, dat_header.table_size, 1, fp) != 1)
 			goto failed;
+		// ENDIANESS SWAP
+		dat_table->res_count = le16toh(dat_table->res_count);
 		pointer->handle = fp;
 		pointer->dat_table = dat_table;
 	}
