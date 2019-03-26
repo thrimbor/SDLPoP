@@ -833,7 +833,11 @@ surface_type far *__pascal make_offscreen_buffer(const rect_type far *rect) {
 	// stub
 #ifndef USE_ALPHA
 	// Bit order matches onscreen buffer, good for fading.
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
 	return SDL_CreateRGBSurface(0, rect->right, rect->bottom, 24, 0xFF, 0xFF<<8, 0xFF<<16, 0); //RGB888 (little endian)
+#else
+	return SDL_CreateRGBSurface(0, rect->right, rect->bottom, 24, 0xFF<<16, 0xFF<<8, 0xFF, 0); //RGB888 (big endian)
+#endif
 #else
 	return SDL_CreateRGBSurface(0, rect->right, rect->bottom, 32, 0xFF, 0xFF<<8, 0xFF<<16, 0xFF<<24);
 #endif
@@ -2362,7 +2366,11 @@ void __pascal far set_gr_mode(byte grmode) {
 	 * subsequently displayed.
 	 * The function handling the screen updates is update_screen()
 	 * */
-	onscreen_surface_ = SDL_CreateRGBSurface(0, 320, 200, 24, 0xFF, 0xFF << 8, 0xFF << 16, 0);
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+	onscreen_surface_ = SDL_CreateRGBSurface(0, 320, 200, 24, 0xFF, 0xFF << 8, 0xFF<<16, 0);
+#else
+	onscreen_surface_ = SDL_CreateRGBSurface(0, 320, 200, 24, 0xFF<<16, 0xFF << 8, 0xFF, 0);
+#endif
 	if (onscreen_surface_ == NULL) {
 		sdlperror("SDL_CreateRGBSurface");
 		quit(1);
