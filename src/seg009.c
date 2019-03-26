@@ -437,7 +437,7 @@ chtab_type* __pascal load_sprites_from_file(int resource,int palette_bits, int q
 			chtab_palette_bits |= palette_bits;
 			//has_palette_bits = 0;
 		}
-		pal_ptr->row_bits = palette_bits;
+		pal_ptr->row_bits = le16toh(palette_bits);
 	}
 
 	n_images = shpl->n_images;
